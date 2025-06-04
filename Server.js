@@ -32,8 +32,8 @@ const transporter = nodemailer.createTransport({
 
 // ---------- CONEXÃO COM O BANCO E CRIAÇÃO DO ADMIN ---------------------------------------------------------------------------------------------
 mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  useNewUrlParser: true,  //isso não precisa
+  useUnifiedTopology: true,  //isso não precisa
 }).then(async () => {
   console.log('MongoDB conectado!');
 
@@ -980,6 +980,10 @@ async function seedDestaques() {
 
 // Chama a função para popular os destaques (se quiser rodar só uma vez, descomente)
 seedDestaques();
+
+app.get('/ping', (req, res) => {
+  res.send('pong');
+});
 
 
 const PORT = process.env.PORT || 5000;
