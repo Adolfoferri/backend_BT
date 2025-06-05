@@ -101,7 +101,7 @@ const UserSchema = new mongoose.Schema({
   nome: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   senha: { type: String, required: true },
-  aprovado: { type: Boolean, default: false },
+  aprovado: { type: Boolean, default: true },
   resetToken: { type: String },
 tokenExpira: { type: Date },
   role: { type: String, enum: ['user', 'admin'], default: 'user' }, // campo role adicionado
