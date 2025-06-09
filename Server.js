@@ -604,25 +604,26 @@ app.get('/api/testemunhos', async (req, res) => {
 app.post('/api/cartilhas', upload.single('pdf'), async (req, res) => {
   try {
     const { title } = req.body;
+    const file = req.file;
 
-    if (!req.file || !title) {
+    if (!title || !file) {
       return res.status(400).json({ error: 'Título e arquivo PDF são obrigatórios.' });
     }
 
-    // O upload já foi feito pelo multer + CloudinaryStorage
-    // A URL pública está disponível em req.file.path
-    const novaCartilha = new Cartilha({
-      title,
-      url: req.file.path, // Cloudinary já retorna a URL pública aqui
-    });
+    // Corrige a URL para evitar duplicações
+    const relativePath = file.path.replace(/^.*?uploads[\\/]/, 'uploads/');
+    const publicUrl = `${req.protocol}://${req.get('host')}/${relativePath.replace(/\\/g, '/')}`;
 
+    const novaCartilha = new Cartilha({ title, url: publicUrl });
     await novaCartilha.save();
+
     res.status(201).json(novaCartilha);
   } catch (error) {
     console.error('Erro ao salvar cartilha:', error);
     res.status(500).json({ error: 'Erro ao salvar a cartilha.' });
   }
 });
+
 
 
 
