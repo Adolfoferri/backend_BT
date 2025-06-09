@@ -110,6 +110,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'uploads',  // pasta no Cloudinary onde os arquivos serão armazenados
+    resource_type: 'raw',  // MUITO IMPORTANTE para arquivos pdf
     allowed_formats: ['jpg', 'png', 'jpeg', 'pdf'],  // formatos permitidos
   },
 });
