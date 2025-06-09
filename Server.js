@@ -453,12 +453,22 @@ app.post('/api/noticias', upload.single('imagem'), async (req, res) => {
   try {
     const { titulo, descricao } = req.body;
 
+    if (!titulo || !descricao) {
+      return res.status(400).json({ error: 'Título e descrição são obrigatórios' });
+    }
+
     let imagemUrl = null;
 
     if (req.file) {
-      // Faz upload da imagem local para o Cloudinary
+      console.log('Arquivo recebido:', req.file.path);
+
+      // Faz upload para Cloudinary
       const result = await cloudinary.uploader.upload(req.file.path);
-      imagemUrl = result.secure_url; // pega a URL pública do Cloudinary
+      console.log('Upload para Cloudinary OK:', result.secure_url);
+
+      imagemUrl = result.secure_url;
+    } else {
+      console.log('Nenhum arquivo enviado');
     }
 
     const noticia = new Noticia({ titulo, descricao, imagem: imagemUrl });
