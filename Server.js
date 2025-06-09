@@ -435,20 +435,53 @@ app.delete('/api/videos/:id', async (req, res) => {
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 //------------------- salvar a notícia-----------------
+// app.post('/api/noticias', upload.single('imagem'), async (req, res) => {
+//   try {
+//     const { titulo, descricao } = req.body;
+//     const imagem = req.file ? req.file.path : null; // Salva o caminho da imagem
+
+//     const noticia = new Noticia({ titulo, descricao, imagem });
+//     await noticia.save();
+    
+//     res.status(201).json(noticia);
+//   } catch (error) {
+//     console.error('Erro ao salvar a notícia:', error);
+//     res.status(500).json({ error: 'Erro ao salvar a notícia' });
+//   }
+// });
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+
+// Configurar Cloudinary com suas credenciais
+cloudinary.config({
+  cloud_name: 'SEU_CLOUD_NAME',
+  api_key: 'SUA_API_KEY',
+  api_secret: 'SEU_API_SECRET'
+});
+
 app.post('/api/noticias', upload.single('imagem'), async (req, res) => {
   try {
     const { titulo, descricao } = req.body;
-    const imagem = req.file ? req.file.path : null; // Salva o caminho da imagem
 
-    const noticia = new Noticia({ titulo, descricao, imagem });
+    let imagemUrl = null;
+
+    if (req.file) {
+      // Faz upload da imagem local para o Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path);
+      imagemUrl = result.secure_url; // pega a URL pública do Cloudinary
+    }
+
+    const noticia = new Noticia({ titulo, descricao, imagem: imagemUrl });
     await noticia.save();
-    
+
     res.status(201).json(noticia);
   } catch (error) {
     console.error('Erro ao salvar a notícia:', error);
     res.status(500).json({ error: 'Erro ao salvar a notícia' });
   }
 });
+
 //-----------------------------------------------------------------------
 //---------------------------obter todas as notícias-------------------
 app.get('/api/noticias', async (req, res) => {
