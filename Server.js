@@ -449,17 +449,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 //     res.status(500).json({ error: 'Erro ao salvar a notícia' });
 //   }
 // });
-const cloudinary = require('cloudinary').v2;
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
-
-// Configurar Cloudinary com suas credenciais
-cloudinary.config({
-  cloud_name: 'SEU_CLOUD_NAME',
-  api_key: 'SUA_API_KEY',
-  api_secret: 'SEU_API_SECRET'
-});
-
 app.post('/api/noticias', upload.single('imagem'), async (req, res) => {
   try {
     const { titulo, descricao } = req.body;
