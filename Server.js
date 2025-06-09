@@ -601,6 +601,28 @@ app.get('/api/testemunhos', async (req, res) => {
 //   }
 // });
 //--------------atualizado--------------
+// app.post('/api/cartilhas', upload.single('pdf'), async (req, res) => {
+//   try {
+//     const { title } = req.body;
+
+//     if (!req.file || !title) {
+//       return res.status(400).json({ error: 'Título e arquivo PDF são obrigatórios.' });
+//     }
+
+//     // O upload já foi feito pelo multer + CloudinaryStorage
+//     // A URL pública está disponível em req.file.path
+//     const novaCartilha = new Cartilha({
+//       title,
+//       url: req.file.path, // Cloudinary já retorna a URL pública aqui
+//     });
+
+//     await novaCartilha.save();
+//     res.status(201).json(novaCartilha);
+//   } catch (error) {
+//     console.error('Erro ao salvar cartilha:', error);
+//     res.status(500).json({ error: 'Erro ao salvar a cartilha.' });
+//   }
+// });
 app.post('/api/cartilhas', upload.single('pdf'), async (req, res) => {
   try {
     const { title } = req.body;
@@ -609,20 +631,19 @@ app.post('/api/cartilhas', upload.single('pdf'), async (req, res) => {
       return res.status(400).json({ error: 'Título e arquivo PDF são obrigatórios.' });
     }
 
-    // O upload já foi feito pelo multer + CloudinaryStorage
-    // A URL pública está disponível em req.file.path
-    const novaCartilha = new Cartilha({
-      title,
-      url: req.file.path, // Cloudinary já retorna a URL pública aqui
-    });
+    // Pega URL completa com extensão .pdf garantida
+    const pdfUrl = req.file.path; // deve ser algo tipo https://res.cloudinary.com/.../xxxx.pdf
 
+    const novaCartilha = new Cartilha({ title, url: pdfUrl });
     await novaCartilha.save();
+
     res.status(201).json(novaCartilha);
   } catch (error) {
-    console.error('Erro ao salvar cartilha:', error);
+    console.error(error);
     res.status(500).json({ error: 'Erro ao salvar a cartilha.' });
   }
 });
+
 
 
 
