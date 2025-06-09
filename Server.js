@@ -20,6 +20,16 @@ app.use(cors({
 }));
 app.use(express.json());
 
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+// Configure o Cloudinary com suas credenciais
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 //---------------------------------------------------função para recuperar senha---------------------------------------
 const transporter = nodemailer.createTransport({
   service: 'gmail', // ou outro serviço SMTP
@@ -72,16 +82,16 @@ if (!fs.existsSync(uploadDirectory)) {
 // }
 
 
-//----------Configuração do upload de imagem com multer---------------------------------------
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Pasta onde as imagens serão salvas
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Nome da imagem
-  },
-});
-const upload = multer({ storage: storage });
+//----------Configuração do upload de imagem com multer no local---------------------------------------
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'uploads/'); // Pasta onde as imagens serão salvas
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + path.extname(file.originalname)); // Nome da imagem
+//   },
+// });
+// const upload = multer({ storage: storage });
 //-------------------------------------------------------------------------------------------
 //----------------uploads dpf cartilhas-------------------------------------------------------
 // const pdfStorage = multer.diskStorage({
@@ -95,6 +105,22 @@ const upload = multer({ storage: storage });
 
 // const pdfUpload = multer({ storage: pdfStorage });
 //------------------------------------------------------
+//----------------  salvando imagem no CloudinaryStorage-------------------------
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'uploads',  // pasta no Cloudinary onde os arquivos serão armazenados
+    allowed_formats: ['jpg', 'png', 'jpeg', 'pdf'],  // formatos permitidos
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // Limite: 5MB por arquivo
+});
+
+//--------------------------------------------------------------------------------
+
 
 // ----------- SCHEMA E MODEL DEFINIDOS UMA VEZ SÓ ------------
 const UserSchema = new mongoose.Schema({
@@ -959,6 +985,36 @@ app.post('/redefinir-senha', async (req, res) => {
     res.status(500).json({ message: 'Erro interno do servidor.' });
   }
 });
+//----------------------------rota uploads-------------------------
+app.post('/upload', upload.single('imagem'), async (req, res) => {
+  try {
+    const fileUrl = req.file?.path;
+    const { titulo, descricao } = req.body;
+
+    if (!fileUrl) {
+      return res.status(400).json({ error: 'Arquivo não enviado corretamente.' });
+    }
+    if (!titulo || !descricao) {
+      return res.status(400).json({ error: 'Título e descrição são obrigatórios.' });
+    }
+
+    const novaFoto = new Foto({
+      url: fileUrl,
+      titulo,
+      descricao,
+    });
+
+    await novaFoto.save();
+
+    res.status(200).json({ foto: novaFoto });
+  } catch (error) {
+    console.error('Erro no upload:', error);
+    res.status(500).json({ error: 'Erro ao fazer upload e salvar a foto.' });
+  }
+});
+
+
+
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------
 
