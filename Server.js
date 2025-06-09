@@ -814,7 +814,7 @@ app.get('/api/pedidos', async (req, res) => {
 app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
   try {
     const { titulo, descricao } = req.body;
-    const relativePath = `uploads/${req.file.filename}`;
+    const relativePath = `${req.file.filename}`;
 
     const novaFoto = new Foto({ url: relativePath, titulo, descricao });
     await novaFoto.save();
@@ -988,7 +988,7 @@ app.post('/redefinir-senha', async (req, res) => {
 //----------------------------rota uploads-------------------------
 app.post('/upload', upload.single('imagem'), async (req, res) => {
   try {
-    const fileUrl = req.file?.path;
+    const fileUrl = req.file?.path?.includes('cloudinary.com') ? req.file.path : req.file?.secure_url;
     const { titulo, descricao } = req.body;
 
     if (!fileUrl) {
