@@ -435,51 +435,51 @@ app.delete('/api/videos/:id', async (req, res) => {
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 //------------------- salvar a notícia-----------------
-// app.post('/api/noticias', upload.single('imagem'), async (req, res) => {
-//   try {
-//     const { titulo, descricao } = req.body;
-//     const imagem = req.file ? req.file.path : null; // Salva o caminho da imagem
-
-//     const noticia = new Noticia({ titulo, descricao, imagem });
-//     await noticia.save();
-    
-//     res.status(201).json(noticia);
-//   } catch (error) {
-//     console.error('Erro ao salvar a notícia:', error);
-//     res.status(500).json({ error: 'Erro ao salvar a notícia' });
-//   }
-// });
 app.post('/api/noticias', upload.single('imagem'), async (req, res) => {
   try {
     const { titulo, descricao } = req.body;
+    const imagem = req.file ? req.file.path : null; // Salva o caminho da imagem
 
-    if (!titulo || !descricao) {
-      return res.status(400).json({ error: 'Título e descrição são obrigatórios' });
-    }
-
-    let imagemUrl = null;
-
-    if (req.file) {
-      console.log('Arquivo recebido:', req.file.path);
-
-      // Faz upload para Cloudinary
-      const result = await cloudinary.uploader.upload(req.file.path);
-      console.log('Upload para Cloudinary OK:', result.secure_url);
-
-      imagemUrl = result.secure_url;
-    } else {
-      console.log('Nenhum arquivo enviado');
-    }
-
-    const noticia = new Noticia({ titulo, descricao, imagem: imagemUrl });
+    const noticia = new Noticia({ titulo, descricao, imagem });
     await noticia.save();
-
+    
     res.status(201).json(noticia);
   } catch (error) {
     console.error('Erro ao salvar a notícia:', error);
     res.status(500).json({ error: 'Erro ao salvar a notícia' });
   }
 });
+// app.post('/api/noticias', upload.single('imagem'), async (req, res) => {
+//   try {
+//     const { titulo, descricao } = req.body;
+
+//     if (!titulo || !descricao) {
+//       return res.status(400).json({ error: 'Título e descrição são obrigatórios' });
+//     }
+
+//     let imagemUrl = null;
+
+//     if (req.file) {
+//       console.log('Arquivo recebido:', req.file.path);
+
+//       // Faz upload para Cloudinary
+//       const result = await cloudinary.uploader.upload(req.file.path);
+//       console.log('Upload para Cloudinary OK:', result.secure_url);
+
+//       imagemUrl = result.secure_url;
+//     } else {
+//       console.log('Nenhum arquivo enviado');
+//     }
+
+//     const noticia = new Noticia({ titulo, descricao, imagem: imagemUrl });
+//     await noticia.save();
+
+//     res.status(201).json(noticia);
+//   } catch (error) {
+//     console.error('Erro ao salvar a notícia:', error);
+//     res.status(500).json({ error: 'Erro ao salvar a notícia' });
+//   }
+// });
 
 //-----------------------------------------------------------------------
 //---------------------------obter todas as notícias-------------------
