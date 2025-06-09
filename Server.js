@@ -574,25 +574,48 @@ app.get('/api/testemunhos', async (req, res) => {
 //   }
 // });
 //------------------cartilha adicionar------------------------
+// app.post('/api/cartilhas', upload.single('pdf'), async (req, res) => {
+//   try {
+//     const { title } = req.body;
+//     const file = req.file;
+
+//     // Verifica se o título e o arquivo PDF estão presentes
+//     if (!title || !file) {
+//       return res.status(400).json({ error: 'Título e arquivo PDF são obrigatórios.' });
+//     }
+
+//     // Gera URL pública baseada no caminho do arquivo salvo
+//     // const publicUrl = `${req.protocol}://${req.get('host')}/uploads/pdfs/${file.filename}`;
+//     const publicUrl = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+
+//     // Cria nova cartilha com o título e a URL do PDF
+//     const novaCartilha = new Cartilha({ title, url: publicUrl });
+//     await novaCartilha.save();
+
+//     // Retorna a nova cartilha como resposta
+//     res.status(201).json(novaCartilha);
+//   } catch (error) {
+//     console.error('Erro ao salvar cartilha:', error);
+//     res.status(500).json({ error: 'Erro ao salvar a cartilha.' });
+//   }
+// });
+
 app.post('/api/cartilhas', upload.single('pdf'), async (req, res) => {
   try {
     const { title } = req.body;
     const file = req.file;
 
-    // Verifica se o título e o arquivo PDF estão presentes
     if (!title || !file) {
       return res.status(400).json({ error: 'Título e arquivo PDF são obrigatórios.' });
     }
 
-    // Gera URL pública baseada no caminho do arquivo salvo
-    // const publicUrl = `${req.protocol}://${req.get('host')}/uploads/pdfs/${file.filename}`;
-    const publicUrl = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+    // Corrige a URL para evitar duplicações
+    const relativePath = file.path.replace(/^.*?uploads[\\/]/, 'uploads/');
+    const publicUrl = `${req.protocol}://${req.get('host')}/${relativePath.replace(/\\/g, '/')}`;
 
-    // Cria nova cartilha com o título e a URL do PDF
     const novaCartilha = new Cartilha({ title, url: publicUrl });
     await novaCartilha.save();
 
-    // Retorna a nova cartilha como resposta
     res.status(201).json(novaCartilha);
   } catch (error) {
     console.error('Erro ao salvar cartilha:', error);
