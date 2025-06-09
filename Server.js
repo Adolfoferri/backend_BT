@@ -492,6 +492,22 @@ app.get('/api/noticias', async (req, res) => {
   }
 });
 //----------------------------------------------------------------
+//---------------------deletar noticias -------------------------
+app.delete('/api/noticias/:id', async (req, res) => {
+  try {
+    console.log('Excluindo notícia ID:', req.params.id);
+    const noticia = await Noticia.findByIdAndDelete(req.params.id);
+    if (!noticia) {
+      return res.status(404).json({ error: 'Notícia não encontrada' });
+    }
+    res.status(200).json({ message: 'Notícia excluída com sucesso' });
+  } catch (error) {
+    console.error('Erro ao excluir notícia:', error);
+    res.status(500).json({ error: 'Erro ao excluir notícia' });
+  }
+});
+//----------------------------------------------------------------------
+
 //-----------------------testemunhos------------------------
 // app.post('/api/testemunhos', async (req, res) => {
 //   try {
