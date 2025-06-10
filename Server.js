@@ -845,34 +845,12 @@ app.get('/api/pedidos', async (req, res) => {
 
 //------------------------------------------------------------
 //---------------post fotos----------------------------------
-app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
-  try {
-    const { titulo, descricao } = req.body;
-    const relativePath = `${req.file.filename}`;
-
-    const novaFoto = new Foto({ url: relativePath, titulo, descricao });
-    await novaFoto.save();
-    res.status(201).json(novaFoto);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: 'Erro ao salvar imagem' });
-  }
-});
-
 // app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
 //   try {
 //     const { titulo, descricao } = req.body;
+//     const relativePath = `${req.file.filename}`;
 
-//     // Fazer upload para Cloudinary
-//     const result = await cloudinary.uploader.upload(req.file.path);
-
-//     // result.url tem a URL completa da imagem no Cloudinary
-//     const novaFoto = new Foto({
-//       url: result.url, // aqui tem que salvar a URL completa do Cloudinary
-//       titulo,
-//       descricao,
-//     });
-
+//     const novaFoto = new Foto({ url: relativePath, titulo, descricao });
 //     await novaFoto.save();
 //     res.status(201).json(novaFoto);
 //   } catch (error) {
@@ -880,6 +858,28 @@ app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
 //     res.status(500).json({ erro: 'Erro ao salvar imagem' });
 //   }
 // });
+
+app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
+  try {
+    const { titulo, descricao } = req.body;
+
+    // Fazer upload para Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path);
+
+    // result.url tem a URL completa da imagem no Cloudinary
+    const novaFoto = new Foto({
+      url: result.url, // aqui tem que salvar a URL completa do Cloudinary
+      titulo,
+      descricao,
+    });
+
+    await novaFoto.save();
+    res.status(201).json(novaFoto);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ erro: 'Erro ao salvar imagem' });
+  }
+});
 
 //------------------------------------------------------------------------------
 //---------------Rota para listar imagens-----------------
