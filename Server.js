@@ -898,25 +898,54 @@ app.get('/api/pedidos', async (req, res) => {
 //     res.status(500).json({ erro: 'Erro ao salvar imagem' });
 //   }
 // });
-app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
+// app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
+//   try {
+//     const { titulo, descricao } = req.body;
+
+//     // Fazer upload para Cloudinary
+//     const result = await cloudinary.uploader.upload(req.file.path);
+
+//     // result.url tem a URL completa da imagem no Cloudinary
+//     const novaFoto = new Foto({
+//       url: result.url, // aqui tem que salvar a URL completa do Cloudinary
+//       titulo,
+//       descricao,
+//     });
+
+//     await novaFoto.save();
+//     res.status(201).json(novaFoto);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ erro: 'Erro ao salvar imagem' });
+//   }
+// });
+app.post('/api/cartilhas', upload.single('pdf'), async (req, res) => {
   try {
-    const { titulo, descricao } = req.body;
+    const { title } = req.body;
+    const file = req.file;
 
-    // Fazer upload para Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path);
+    if (!title || !file) {
+      return res.status(400).json({ error: 'Título e arquivo PDF são obrigatórios.' });
+    }
 
-    // result.url tem a URL completa da imagem no Cloudinary
-    const novaFoto = new Foto({
-      url: result.url, // aqui tem que salvar a URL completa do Cloudinary
-      titulo,
-      descricao,
+    // Upload do PDF no Cloudinary
+    const result = await cloudinary.uploader.upload(file.path, {
+      resource_type: 'raw', // necessário para PDF
+      folder: 'cartilhas'    // opcional: cria uma pasta no Cloudinary
     });
 
-    await novaFoto.save();
-    res.status(201).json(novaFoto);
+    // Salva a cartilha com o link correto do Cloudinary
+    const novaCartilha = new Cartilha({
+      title,
+      url: result.secure_url // URL HTTPS da cartilha
+    });
+
+    await novaCartilha.save();
+    res.status(201).json(novaCartilha);
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: 'Erro ao salvar imagem' });
+    console.error('Erro ao salvar cartilha:', error);
+    res.status(500).json({ error: 'Erro ao salvar a cartilha.' });
   }
 });
 //---------------------------------------------------------------
