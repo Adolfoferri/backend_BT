@@ -858,27 +858,27 @@ app.get('/api/pedidos', async (req, res) => {
 //     res.status(500).json({ erro: 'Erro ao salvar imagem' });
 //   }
 // });
-// app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
-//   try {
-//     const { titulo, descricao } = req.body;
+app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
+  try {
+    const { titulo, descricao } = req.body;
 
-//     // Fazer upload para Cloudinary
-//     const result = await cloudinary.uploader.upload(req.file.path);
+    // Fazer upload para Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path);
 
-//     // result.url tem a URL completa da imagem no Cloudinary
-//     const novaFoto = new Foto({
-//       url: result.url, // aqui tem que salvar a URL completa do Cloudinary
-//       titulo,
-//       descricao,
-//     });
+    // result.url tem a URL completa da imagem no Cloudinary
+    const novaFoto = new Foto({
+      url: result.url, // aqui tem que salvar a URL completa do Cloudinary
+      titulo,
+      descricao,
+    });
 
-//     await novaFoto.save();
-//     res.status(201).json(novaFoto);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ erro: 'Erro ao salvar imagem' });
-//   }
-// });
+    await novaFoto.save();
+    res.status(201).json(novaFoto);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ erro: 'Erro ao salvar imagem' });
+  }
+});
 
 //------------------------------------------------------------------------------
 //---------------Rota para listar imagens-----------------
@@ -1068,61 +1068,6 @@ app.post('/upload', upload.single('imagem'), async (req, res) => {
     res.status(500).json({ error: 'Erro ao fazer upload e salvar a foto.' });
   }
 });
-// app.post('/upload', upload.single('imagem'), async (req, res) => {
-//   try {
-//     const { titulo, descricao } = req.body;
-//     const file = req.file;
-
-//     // Validações
-//     if (!file) {
-//       return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
-//     }
-//     if (!titulo || !descricao) {
-//       // Remove o arquivo temporário se houver erro de validação
-//       if (file) fs.unlinkSync(file.path);
-//       return res.status(400).json({ error: 'Título e descrição são obrigatórios.' });
-//     }
-
-//     // Upload para o Cloudinary
-//     const result = await cloudinary.uploader.upload(file.path, {
-//       folder: 'fotos', // Pasta no Cloudinary
-//       public_id: `${titulo}_${Date.now()}`, // Nome único
-//     });
-
-//     // Remove o arquivo temporário
-//     fs.unlinkSync(file.path);
-
-//     // Cria a foto com a URL do Cloudinary
-//     const novaFoto = new Foto({
-//       url: result.secure_url, // URL segura do Cloudinary
-//       titulo,
-//       descricao,
-//     });
-
-//     await novaFoto.save();
-
-//     res.status(201).json({ foto: novaFoto });
-//   } catch (error) {
-//     // Remove o arquivo temporário em caso de erro
-//     if (req.file) fs.unlinkSync(req.file.path);
-    
-//     console.error('Erro detalhado no upload:', {
-//       message: error.message,
-//       stack: error.stack,
-//       fullError: error
-//     });
-    
-//     res.status(500).json({ 
-//       error: 'Erro ao fazer upload e salvar a foto.',
-//       details: process.env.NODE_ENV === 'development' ? error.message : null
-//     });
-//   }
-// });
-
-
-
-
-//-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 async function seedDestaques() {
   const dadosIniciais = [
