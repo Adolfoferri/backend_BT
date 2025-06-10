@@ -600,33 +600,6 @@ app.get('/api/testemunhos', async (req, res) => {
 //     res.status(500).json({ error: 'Erro ao salvar a cartilha.' });
 //   }
 // });
-//--------------atualizado--------------
-app.post('/api/cartilhas', upload.single('pdf'), async (req, res) => {
-  try {
-    const { title } = req.body;
-    const file = req.file;
-
-    if (!title || !file) {
-      return res.status(400).json({ error: 'Título e arquivo PDF são obrigatórios.' });
-    }
-
-    // Corrige a URL para evitar duplicações
-    const relativePath = file.path.replace(/^.*?uploads[\\/]/, 'uploads/');
-    const publicUrl = `${req.protocol}://${req.get('host')}/${relativePath.replace(/\\/g, '/')}`;
-
-    const novaCartilha = new Cartilha({ title, url: publicUrl });
-    await novaCartilha.save();
-
-    res.status(201).json(novaCartilha);
-  } catch (error) {
-    console.error('Erro ao salvar cartilha:', error);
-    res.status(500).json({ error: 'Erro ao salvar a cartilha.' });
-  }
-});
-
-
-
-
 //------------------------------------------------------------
 
 //----------Buscar todas as cartilhas----------------------
@@ -638,6 +611,7 @@ app.get('/api/cartilhas', async (req, res) => {
     res.status(500).json({ error: 'Erro ao buscar cartilhas.' });
   }
 });
+///---------------------------------------------------------------------
 
 // Criar novo missionário
 app.post('/api/missionarios', async (req, res) => {
