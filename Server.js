@@ -845,19 +845,19 @@ app.get('/api/pedidos', async (req, res) => {
 
 //------------------------------------------------------------
 //---------------post fotos----------------------------------
-// app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
-//   try {
-//     const { titulo, descricao } = req.body;
-//     const relativePath = `${req.file.filename}`;
+app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
+  try {
+    const { titulo, descricao } = req.body;
+    const relativePath = `${req.file.filename}`;
 
-//     const novaFoto = new Foto({ url: relativePath, titulo, descricao });
-//     await novaFoto.save();
-//     res.status(201).json(novaFoto);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ erro: 'Erro ao salvar imagem' });
-//   }
-// });
+    const novaFoto = new Foto({ url: relativePath, titulo, descricao });
+    await novaFoto.save();
+    res.status(201).json(novaFoto);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ erro: 'Erro ao salvar imagem' });
+  }
+});
 // app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
 //   try {
 //     const { titulo, descricao } = req.body;
@@ -879,20 +879,7 @@ app.get('/api/pedidos', async (req, res) => {
 //     res.status(500).json({ erro: 'Erro ao salvar imagem' });
 //   }
 // });
-app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
-  try {
-    const { titulo, descricao } = req.body;
-    const imagem = req.file ? req.file.path : null; // Salva o caminho da imagem
 
-    const fotos = new Foto({ titulo, descricao, imagem });
-    await fotos.save();
-    
-    res.status(201).json(fotos);
-  } catch (error) {
-    console.error('Erro ao salvar a foto:', error);
-    res.status(500).json({ error: 'Erro ao salvar a foto' });
-  }
-});
 //------------------------------------------------------------------------------
 //---------------Rota para listar imagens-----------------
 app.get('/api/fotos', async (req, res) => {
