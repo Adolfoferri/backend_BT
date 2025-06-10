@@ -845,25 +845,12 @@ app.get('/api/pedidos', async (req, res) => {
 
 //------------------------------------------------------------
 //---------------post fotos----------------------------------
-// app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
-//   try {
-//     const { titulo, descricao } = req.body;
-//     const relativePath = `${req.file.filename}`;
-
-//     const novaFoto = new Foto({ url: relativePath, titulo, descricao });
-//     await novaFoto.save();
-//     res.status(201).json(novaFoto);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ erro: 'Erro ao salvar imagem' });
-//   }
-// });
 app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
   try {
     const { titulo, descricao } = req.body;
-    const imagem = req.file ? req.file.path : null;
+    const relativePath = `${req.file.filename}`;
 
-    const novaFoto = new Foto({ imagem, titulo, descricao });
+    const novaFoto = new Foto({ url: relativePath, titulo, descricao });
     await novaFoto.save();
     res.status(201).json(novaFoto);
   } catch (error) {
@@ -871,6 +858,7 @@ app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
     res.status(500).json({ erro: 'Erro ao salvar imagem' });
   }
 });
+
 // app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
 //   try {
 //     const { titulo, descricao } = req.body;
