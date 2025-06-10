@@ -557,49 +557,35 @@ app.get('/api/testemunhos', async (req, res) => {
 
 
 //------------------Adicionar cartilha----------------------
-// app.post('/api/cartilhas', upload.single('pdf'), async (req, res) => {
-//   try {
-//     const { title } = req.body;
-//     const filePath = req.file?.path;
+app.post('/api/cartilhas', upload.single('pdf'), async (req, res) => {
+  try {
+    const { title } = req.body;
+    const file = req.file;
 
-//     if (!title || !filePath) {
-//       return res.status(400).json({ error: 'Título e arquivo PDF são obrigatórios.' });
-//     }
+    if (!title || !file) {
+      return res.status(400).json({ error: 'Título e arquivo PDF são obrigatórios.' });
+    }
 
-//     const novaCartilha = new Cartilha({ title, url: filePath });
-//     await novaCartilha.save();
-//     res.status(201).json(novaCartilha);
-//   } catch (error) {
-//     console.error('Erro ao salvar cartilha:', error);
-//     res.status(500).json({ error: 'Erro ao salvar a cartilha.' });
-//   }
-// });
-//------------------cartilha adicionar------------------------
-// app.post('/api/cartilhas', upload.single('pdf'), async (req, res) => {
-//   try {
-//     const { title } = req.body;
-//     const file = req.file;
+    // Upload do PDF no Cloudinary
+    const result = await cloudinary.uploader.upload(file.path, {
+      resource_type: 'raw', // necessário para PDF
+      folder: 'cartilhas'    // opcional: cria uma pasta no Cloudinary
+    });
 
-//     // Verifica se o título e o arquivo PDF estão presentes
-//     if (!title || !file) {
-//       return res.status(400).json({ error: 'Título e arquivo PDF são obrigatórios.' });
-//     }
+    // Salva a cartilha com o link correto do Cloudinary
+    const novaCartilha = new Cartilha({
+      title,
+      url: result.secure_url // URL HTTPS da cartilha
+    });
 
-//     // Gera URL pública baseada no caminho do arquivo salvo
-//     // const publicUrl = `${req.protocol}://${req.get('host')}/uploads/pdfs/${file.filename}`;
-//     const publicUrl = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+    await novaCartilha.save();
+    res.status(201).json(novaCartilha);
 
-//     // Cria nova cartilha com o título e a URL do PDF
-//     const novaCartilha = new Cartilha({ title, url: publicUrl });
-//     await novaCartilha.save();
-
-//     // Retorna a nova cartilha como resposta
-//     res.status(201).json(novaCartilha);
-//   } catch (error) {
-//     console.error('Erro ao salvar cartilha:', error);
-//     res.status(500).json({ error: 'Erro ao salvar a cartilha.' });
-//   }
-// });
+  } catch (error) {
+    console.error('Erro ao salvar cartilha:', error);
+    res.status(500).json({ error: 'Erro ao salvar a cartilha.' });
+  }
+});
 //------------------------------------------------------------
 
 //----------Buscar todas as cartilhas----------------------
@@ -893,36 +879,21 @@ app.get('/api/pedidos', async (req, res) => {
 //     res.status(500).json({ erro: 'Erro ao salvar imagem' });
 //   }
 // });
-app.post('/api/cartilhas', upload.single('pdf'), async (req, res) => {
+app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
   try {
-    const { title } = req.body;
-    const file = req.file;
+    const { titulo, descricao } = req.body;
+    const imagem = req.file ? req.file.path : null; // Salva o caminho da imagem
 
-    if (!title || !file) {
-      return res.status(400).json({ error: 'Título e arquivo PDF são obrigatórios.' });
-    }
-
-    // Upload do PDF no Cloudinary
-    const result = await cloudinary.uploader.upload(file.path, {
-      resource_type: 'raw', // necessário para PDF
-      folder: 'cartilhas'    // opcional: cria uma pasta no Cloudinary
-    });
-
-    // Salva a cartilha com o link correto do Cloudinary
-    const novaCartilha = new Cartilha({
-      title,
-      url: result.secure_url // URL HTTPS da cartilha
-    });
-
-    await novaCartilha.save();
-    res.status(201).json(novaCartilha);
-
+    const fotos = new Foto({ titulo, descricao, imagem });
+    await fotos.save();
+    
+    res.status(201).json(fotos);
   } catch (error) {
-    console.error('Erro ao salvar cartilha:', error);
-    res.status(500).json({ error: 'Erro ao salvar a cartilha.' });
+    console.error('Erro ao salvar a foto:', error);
+    res.status(500).json({ error: 'Erro ao salvar a foto' });
   }
 });
-//---------------------------------------------------------------
+//------------------------------------------------------------------------------
 //---------------Rota para listar imagens-----------------
 app.get('/api/fotos', async (req, res) => {
   try {
@@ -1084,32 +1055,32 @@ app.post('/redefinir-senha', async (req, res) => {
   }
 });
 //----------------------------rota uploads-------------------------
-app.post('/upload', upload.single('imagem'), async (req, res) => {
-  try {
-    const fileUrl = req.file?.path?.includes('cloudinary.com') ? req.file.path : req.file?.secure_url;
-    const { titulo, descricao } = req.body;
+// app.post('/upload', upload.single('imagem'), async (req, res) => {
+//   try {
+//     const fileUrl = req.file?.path?.includes('cloudinary.com') ? req.file.path : req.file?.secure_url;
+//     const { titulo, descricao } = req.body;
 
-    if (!fileUrl) {
-      return res.status(400).json({ error: 'Arquivo não enviado corretamente.' });
-    }
-    if (!titulo || !descricao) {
-      return res.status(400).json({ error: 'Título e descrição são obrigatórios.' });
-    }
+//     if (!fileUrl) {
+//       return res.status(400).json({ error: 'Arquivo não enviado corretamente.' });
+//     }
+//     if (!titulo || !descricao) {
+//       return res.status(400).json({ error: 'Título e descrição são obrigatórios.' });
+//     }
 
-    const novaFoto = new Foto({
-      url: fileUrl,
-      titulo,
-      descricao,
-    });
+//     const novaFoto = new Foto({
+//       url: fileUrl,
+//       titulo,
+//       descricao,
+//     });
 
-    await novaFoto.save();
+//     await novaFoto.save();
 
-    res.status(200).json({ foto: novaFoto });
-  } catch (error) {
-    console.error('Erro no upload:', error);
-    res.status(500).json({ error: 'Erro ao fazer upload e salvar a foto.' });
-  }
-});
+//     res.status(200).json({ foto: novaFoto });
+//   } catch (error) {
+//     console.error('Erro no upload:', error);
+//     res.status(500).json({ error: 'Erro ao fazer upload e salvar a foto.' });
+//   }
+// });
 
 
 
