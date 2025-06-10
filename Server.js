@@ -1042,30 +1042,80 @@ app.post('/redefinir-senha', async (req, res) => {
   }
 });
 //----------------------------rota uploads-------------------------
+// app.post('/upload', upload.single('imagem'), async (req, res) => {
+//   try {
+//     const fileUrl = req.file?.path?.includes('cloudinary.com') ? req.file.path : req.file?.secure_url;
+//     const { titulo, descricao } = req.body;
+
+//     if (!fileUrl) {
+//       return res.status(400).json({ error: 'Arquivo não enviado corretamente.' });
+//     }
+//     if (!titulo || !descricao) {
+//       return res.status(400).json({ error: 'Título e descrição são obrigatórios.' });
+//     }
+
+//     const novaFoto = new Foto({
+//       url: fileUrl,
+//       titulo,
+//       descricao,
+//     });
+
+//     await novaFoto.save();
+
+//     res.status(200).json({ foto: novaFoto });
+//   } catch (error) {
+//     console.error('Erro no upload:', error);
+//     res.status(500).json({ error: 'Erro ao fazer upload e salvar a foto.' });
+//   }
+// });
 app.post('/upload', upload.single('imagem'), async (req, res) => {
   try {
-    const fileUrl = req.file?.path?.includes('cloudinary.com') ? req.file.path : req.file?.secure_url;
     const { titulo, descricao } = req.body;
+    const file = req.file;
 
-    if (!fileUrl) {
-      return res.status(400).json({ error: 'Arquivo não enviado corretamente.' });
+    // Validações
+    if (!file) {
+      return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
     }
     if (!titulo || !descricao) {
+      // Remove o arquivo temporário se houver erro de validação
+      if (file) fs.unlinkSync(file.path);
       return res.status(400).json({ error: 'Título e descrição são obrigatórios.' });
     }
 
+    // Upload para o Cloudinary
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: 'fotos', // Pasta no Cloudinary
+      public_id: `${titulo}_${Date.now()}`, // Nome único
+    });
+
+    // Remove o arquivo temporário
+    fs.unlinkSync(file.path);
+
+    // Cria a foto com a URL do Cloudinary
     const novaFoto = new Foto({
-      url: fileUrl,
+      url: result.secure_url, // URL segura do Cloudinary
       titulo,
       descricao,
     });
 
     await novaFoto.save();
 
-    res.status(200).json({ foto: novaFoto });
+    res.status(201).json({ foto: novaFoto });
   } catch (error) {
-    console.error('Erro no upload:', error);
-    res.status(500).json({ error: 'Erro ao fazer upload e salvar a foto.' });
+    // Remove o arquivo temporário em caso de erro
+    if (req.file) fs.unlinkSync(req.file.path);
+    
+    console.error('Erro detalhado no upload:', {
+      message: error.message,
+      stack: error.stack,
+      fullError: error
+    });
+    
+    res.status(500).json({ 
+      error: 'Erro ao fazer upload e salvar a foto.',
+      details: process.env.NODE_ENV === 'development' ? error.message : null
+    });
   }
 });
 
