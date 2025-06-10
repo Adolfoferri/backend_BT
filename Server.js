@@ -859,16 +859,39 @@ app.get('/api/pedidos', async (req, res) => {
 //   }
 // });
 
+// app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
+//   try {
+//     const { titulo, descricao } = req.body;
+
+//     // Fazer upload para Cloudinary
+//     const result = await cloudinary.uploader.upload(req.file.path);
+
+//     // result.url tem a URL completa da imagem no Cloudinary
+//     const novaFoto = new Foto({
+//       url: result.url, // aqui tem que salvar a URL completa do Cloudinary
+//       titulo,
+//       descricao,
+//     });
+
+//     await novaFoto.save();
+//     res.status(201).json(novaFoto);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ erro: 'Erro ao salvar imagem' });
+//   }
+// });
+
 app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
   try {
     const { titulo, descricao } = req.body;
 
-    // Fazer upload para Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path);
+    // Força upload como imagem
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      resource_type: 'image' // 👈 força o Cloudinary a tratar como imagem
+    });
 
-    // result.url tem a URL completa da imagem no Cloudinary
     const novaFoto = new Foto({
-      url: result.url, // aqui tem que salvar a URL completa do Cloudinary
+      url: result.secure_url, // sempre prefira HTTPS
       titulo,
       descricao,
     });
