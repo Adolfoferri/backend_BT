@@ -848,9 +848,9 @@ app.get('/api/pedidos', async (req, res) => {
 app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
   try {
     const { titulo, descricao } = req.body;
-    const relativePath = `${req.file.filename}`;
+   const imagem = req.file ? req.file.path : null;
 
-    const novaFoto = new Foto({ url: relativePath, titulo, descricao });
+    const novaFoto = new Foto({ titulo, descricao, imagem});
     await novaFoto.save();
     res.status(201).json(novaFoto);
   } catch (error) {
