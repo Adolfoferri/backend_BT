@@ -845,19 +845,19 @@ app.get('/api/pedidos', async (req, res) => {
 
 //------------------------------------------------------------
 //---------------post fotos----------------------------------
-app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
-  try {
-    const { titulo, descricao } = req.body;
-   const imagem = req.file ? req.file.path : null;
+// app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
+//   try {
+//     const { titulo, descricao } = req.body;
+//     const relativePath = `${req.file.filename}`;
 
-    const novaFoto = new Foto({ titulo, descricao, imagem});
-    await novaFoto.save();
-    res.status(201).json(novaFoto);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: 'Erro ao salvar imagem' });
-  }
-});
+//     const novaFoto = new Foto({ url: relativePath, titulo, descricao });
+//     await novaFoto.save();
+//     res.status(201).json(novaFoto);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ erro: 'Erro ao salvar imagem' });
+//   }
+// });
 // app.post('/api/fotos', upload.single('imagem'), async (req, res) => {
 //   try {
 //     const { titulo, descricao } = req.body;
@@ -1042,32 +1042,32 @@ app.post('/redefinir-senha', async (req, res) => {
   }
 });
 //----------------------------rota uploads-------------------------
-// app.post('/upload', upload.single('imagem'), async (req, res) => {
-//   try {
-//     const fileUrl = req.file?.path?.includes('cloudinary.com') ? req.file.path : req.file?.secure_url;
-//     const { titulo, descricao } = req.body;
+app.post('/upload', upload.single('imagem'), async (req, res) => {
+  try {
+    const fileUrl = req.file?.path?.includes('cloudinary.com') ? req.file.path : req.file?.secure_url;
+    const { titulo, descricao } = req.body;
 
-//     if (!fileUrl) {
-//       return res.status(400).json({ error: 'Arquivo não enviado corretamente.' });
-//     }
-//     if (!titulo || !descricao) {
-//       return res.status(400).json({ error: 'Título e descrição são obrigatórios.' });
-//     }
+    if (!fileUrl) {
+      return res.status(400).json({ error: 'Arquivo não enviado corretamente.' });
+    }
+    if (!titulo || !descricao) {
+      return res.status(400).json({ error: 'Título e descrição são obrigatórios.' });
+    }
 
-//     const novaFoto = new Foto({
-//       url: fileUrl,
-//       titulo,
-//       descricao,
-//     });
+    const novaFoto = new Foto({
+      url: fileUrl,
+      titulo,
+      descricao,
+    });
 
-//     await novaFoto.save();
+    await novaFoto.save();
 
-//     res.status(200).json({ foto: novaFoto });
-//   } catch (error) {
-//     console.error('Erro no upload:', error);
-//     res.status(500).json({ error: 'Erro ao fazer upload e salvar a foto.' });
-//   }
-// });
+    res.status(200).json({ foto: novaFoto });
+  } catch (error) {
+    console.error('Erro no upload:', error);
+    res.status(500).json({ error: 'Erro ao fazer upload e salvar a foto.' });
+  }
+});
 
 
 
